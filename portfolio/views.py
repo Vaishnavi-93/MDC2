@@ -149,13 +149,26 @@ def portfolio(request,pk):
    customers = Customer.objects.filter(created_date__lte=timezone.now())
    investments =Investment.objects.filter(customer=pk)
    stocks = Stock.objects.filter(customer=pk)
+   sum_initial_stock_value=0;
+   sum_recent_stock_value=0;
+   for i in stocks:
+      sum_initial_stock_value=sum_initial_stock_value+i.initial_stock_value()
+      sum_recent_stock_value=sum_recent_stock_value+i.current_stock_value()
+   sum_initial_stock_value= round(sum_initial_stock_value,3);
+   sum_recent_stock_value=round(sum_recent_stock_value,3);
    sum_recent_value = Investment.objects.filter(customer=pk).aggregate(Sum('recent_value'))
    sum_acquired_value = Investment.objects.filter(customer=pk).aggregate(Sum('acquired_value'))
-
+   portfolio_inital_investment= round(float(sum_initial_stock_value)+float(sum_acquired_value['acquired_value__sum']),3);
+   portfolio_current_investment= round(float(sum_recent_stock_value)+float(sum_recent_value['recent_value__sum']),3);
    return render(request, 'portfolio/portfolio.html', {'customers': customers, 'investments': investments,
                                                       'stocks': stocks,
                                                       'sum_recent_value': sum_recent_value,
-                                                      'sum_acquired_value': sum_acquired_value,})
+                                                      'sum_acquired_value': sum_acquired_value,
+                                                      'sum_initial_stock_value':sum_initial_stock_value,
+                                                      'sum_recent_stock_value':sum_recent_stock_value,
+                                                      'portfolio_inital_investment':portfolio_inital_investment,
+                                                      'portfolio_current_investment':portfolio_current_investment
+                                                      })
 
 
 
